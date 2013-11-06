@@ -11,10 +11,10 @@ import java.util.logging.Logger;
 
 public class NetworkListener {
     
-    public GameList gameList;
+    public static GameList gameList;
     
-    public NetworkListener(GameList gameList){
-        this.gameList = gameList;
+    public NetworkListener(){
+        gameList = new GameList();
     }
     
     public void start(){
@@ -63,13 +63,13 @@ public class NetworkListener {
                     temp.add(params[0]);
                     gameList.hostGame(createMachine(ipAddress, params[2]));
                     break;
-                case("leaveGame")://reqNumber | command | hostIp
+                case("leaveGame")://reqNumber | command | hostIp | distance
                     System.out.println("SERVER: login");
                     if(ipIsHost(params[2], temp, params[0])) gameList.leaveGame(params[2], createMachine(ipAddress, params[3]));
                     break;
                 case("changeDistance")://reqNumber | command | distance
                     System.out.println("SERVER: login");
-                    temp.add(params[0]+" | "+users.login(params[2],params[3],ipAddress));
+                    gameList.changeDistance(createMachine(ipAddress, params[2]));
                     break;
             }
             if (temp.size()==2) MachineList.toUpdate.put(temp);
