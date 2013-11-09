@@ -13,16 +13,20 @@ public class GameList {
         hostIPMachineListMap.put(node.ip, game);
     }
     
-    public boolean ipIsHost(String hostIP){
-        return hostIPMachineListMap.containsKey(hostIP);
+    public boolean joinGame(String hostIP, Machine node){
+        if(ipIsHost(hostIP)){
+            hostIPMachineListMap.get(hostIP).addMachine(node);
+            return true;
+        }
+        return false;
     }
     
-    public void joinGame(String hostIP, Machine node){
-        hostIPMachineListMap.get(hostIP).addMachine(node);
-    }
-    
-    public void leaveGame(String hostIP, Machine node){
-        hostIPMachineListMap.get(hostIP).removeMachine(node);
+    public boolean leaveGame(String hostIP, Machine node){
+        if(ipIsHost(hostIP)){
+            hostIPMachineListMap.get(hostIP).removeMachine(node);
+            return true;
+        }
+        return false;
     }
     
     public void changeDistance(Machine node){
@@ -30,5 +34,9 @@ public class GameList {
         for(MachineList game : hostIPMachineListMap.values()){
             game.newDistance(node);
         }
+    }
+    
+    private boolean ipIsHost(String hostIP){
+        return hostIPMachineListMap.containsKey(hostIP);
     }
 }

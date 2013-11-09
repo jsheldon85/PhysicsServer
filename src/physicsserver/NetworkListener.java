@@ -49,23 +49,27 @@ public class NetworkListener {
     //        System.out.println("param"+Integer.toString(i++)+"\t"+param);
     //    }
         try{
-
+            String reqNumber = params[0];
             ArrayList<String> temp = new ArrayList<>(2);
             temp.add(ipAddress);
+            temp.add(reqNumber+" | ");
    //         System.out.println("PARAM1: "+params[1]);
             switch(params[1]){
-                case("joinGame")://reqNumber | command | hostIp | distance
-                    System.out.println("SERVER: joinGame");
-                    if(ipIsHost(params[2], temp, params[0])) gameList.joinGame(params[2], createMachine(ipAddress, params[3]));
-                    break;
                 case("hostGame")://reqNumber | command | distance
                     System.out.println("SERVER: login");
-                    temp.add(params[0]);
+                    temp.add(reqNumber);
                     gameList.hostGame(createMachine(ipAddress, params[2]));
+                    break;
+                case("joinGame")://reqNumber | command | hostIp | distance
+                    System.out.println("SERVER: joinGame");
+                    boolean isIPHost = gameList.joinGame(params[2], createMachine(ipAddress, params[3]));
+                    temp.set(1, temp.get(1) + Boolean.toString(isIPHost));
                     break;
                 case("leaveGame")://reqNumber | command | hostIp | distance
                     System.out.println("SERVER: login");
-                    if(ipIsHost(params[2], temp, params[0])) gameList.leaveGame(params[2], createMachine(ipAddress, params[3]));
+                    //if(ipIsHost(params[2], temp, reqNumber)) ;
+                    isIPHost = gameList.leaveGame(params[2], createMachine(ipAddress, params[3]));
+                    temp.set(1, temp.get(1) + Boolean.toString(isIPHost));
                     break;
                 case("changeDistance")://reqNumber | command | distance
                     System.out.println("SERVER: login");
@@ -79,14 +83,6 @@ public class NetworkListener {
         catch(Error e){
             System.out.println(e);
         }
-    }
-
-    private boolean ipIsHost(String hostIP, ArrayList<String> temp, String reqNumber){
-        if(gameList.ipIsHost(hostIP)){
-            return true;
-        }
-        temp.add(reqNumber + " | false");
-        return false;
     }
     
     private Machine createMachine(String ipAddress, String distance){
