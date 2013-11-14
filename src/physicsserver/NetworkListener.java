@@ -86,6 +86,6 @@ public class NetworkListener {
     }
     
     private Machine createMachine(String ipAddress, String distance){
-        return new Machine(ipAddress, Float.parseFloat(distance));
+        return new Machine(ipAddress, Double.parseDouble(distance));
     }
 }

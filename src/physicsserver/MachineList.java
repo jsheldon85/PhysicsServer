@@ -1,7 +1,6 @@
 package physicsserver;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
@@ -9,43 +8,34 @@ import java.util.logging.Logger;
 
 public class MachineList {
     LinkedList<Machine> list;
-    static HashMap<String, Float> ipDistanceMap = new HashMap();
     static LinkedBlockingQueue<ArrayList<String>> toUpdate = new LinkedBlockingQueue();
+    String hostIP;
     
-    public MachineList(){
+    public MachineList(String hostIP){
         list = new LinkedList();
+        this.hostIP = hostIP;
     }
-    /* Machines A, B, C, D, E
-     * A Hosts
-     * B Joins A -> A & B
-     * C Joins A -> A & B & C
-     * C Hosts
-     * D Joins C -> A & B & C  |  C & D
-     * E Hosts
-     * B Joins E -> A & B & C  |  C & D  |  B & E
-     */
     
     public void addMachine(Machine newNode){
-        for (int i=0; i<list.size(); i++){
-            if(list.get(i).distance>newNode.distance) list.add(i, newNode);
-            updateMachines(i);
-            return;
+        int i=0;
+        for (;i<list.size(); i++){
+            if(list.get(i).distance>newNode.distance) break;
         }
-        list.add(newNode);
-        updateMachines(list.size()-1);
+        if(i==list.size()) list.add(newNode);
+        else list.add(i,newNode);
+        updateSet(i);
+        updateAdjacentSides(i);
     }
     
     public void removeMachine(Machine node){
-        int index = -1;
-        for(int i=0; i<list.size(); i++){
-            if(list.get(i).equals(node)){
-                index = i;
-                break;
-            }
+        int i = 0;
+        for(;i<list.size(); i++){
+            if(list.get(i).equals(node)) break;
         }
-        if (index != -1){
-            list.remove(index);
-            updateMachines(index);
+        if (i<list.size()){
+            sendRemoveSet(i);
+            list.remove(i);
+            updateAdjacentSides(i);
         }
     }
     
@@ -58,52 +48,75 @@ public class MachineList {
         }        
     }
     
-    private void updateMachines(int index){
-        int left = index-1;
-        int middle = index;
-        int right = index+1;
-        if(index == 0){
-            removeSide(list.get(middle).ip, false);
-            updateSide(list.get(middle).ip, true, getRelativeDistance(middle, right), list.get(right).ip);
-            updateSide(list.get(right).ip, false, getRelativeDistance(right, middle), list.get(middle).ip);
-        }
-        else if(index == list.size()-1){
-            updateSide(list.get(middle).ip, false, getRelativeDistance(middle, left), list.get(left).ip);
-            updateSide(list.get(left).ip, true, getRelativeDistance(left, middle), list.get(middle).ip);
-            removeSide(list.get(middle).ip, true);
-        }
-        else{
-            updateSide(list.get(left).ip, true, getRelativeDistance(left, middle), list.get(middle).ip);
-            updateSide(list.get(middle).ip, false, getRelativeDistance(middle, left), list.get(left).ip);
-            updateSide(list.get(middle).ip, true, getRelativeDistance(middle, right), list.get(right).ip);
-            updateSide(list.get(right).ip, false, getRelativeDistance(right, middle), list.get(middle).ip);
+    private void updateSet(int index){
+        updateLeftSide(index);
+        updateRightSide(index);
+    }
+    
+    private void updateAdjacentSides(int index){
+        updateLeftSide(index+1);
+        updateRightSide(index-1);
+    }
+    
+    private void updateLeftSide(int index){
+        updateSide(index, false);
+    }
+    
+    private void updateRightSide(int index){
+        updateSide(index, true);
+    }
+    
+    private void updateSide(int index, boolean isRightSide){
+        if(isValidIndex(index)){
+            Machine centerNode = list.get(index);
+            String toIP = centerNode.ip, newIP = "";
+            double distance = isRightSide? 0.000001:-0.000001;
+            
+            if(isRightSide? hasAdjacentRight(index) : hasAdjacentLeft(index)){
+                Machine adjacentNode = list.get(isRightSide? index+1 : index-1);
+                newIP = adjacentNode.ip;
+                distance = getDifference(centerNode.distance, adjacentNode.distance);
+            }
+            sendUpdateSide(toIP, distance, newIP);
         }
     }
     
-    private float getRelativeDistance(int focusIndex, int targetIndex){
-        return ipDistanceMap.get(list.get(targetIndex).ip) - ipDistanceMap.get(list.get(focusIndex).ip);
+    private boolean hasAdjacentLeft(int index){
+        return index > 0;
     }
     
-    private void updateSide(String ip, boolean isRightSide, float relativeDistance, String newIp){
-        String[] args = {"updateSide", isRightSide?"right":"left", Float.toString(relativeDistance), newIp};
+    private boolean hasAdjacentRight(int index){
+        return index < list.size()-1;
+    }
+    
+    private boolean isValidIndex(int index){
+        return index >=0 && index < list.size();
+    }
+    
+    private double getDifference(double focusDist, double targetDist){
+        return targetDist - focusDist;
+    }
+    
+    private void sendUpdateSide(String ip, double relativeDistance, String newIp){
+        String[] args = {"updateSide", hostIP, Double.toString(relativeDistance), newIp};
         sendUpdate(ip, args);
     }
-        
-    private void removeSide(String ip, boolean isRightSide){
-        String[] args = {"removeSide", isRightSide?"right":"left"};
-        sendUpdate(ip, args);
+    
+    private void sendRemoveSet(int index){
+        String[] args = {"removeSet", hostIP};
+        sendUpdate(list.get(index).ip, args);
     }
     
-    //String ip, boolean isRightSide, float relativeDistance, String newIp
+    //String ip, boolean isRightSide, double relativeDistance, String newIp
     private void sendUpdate(String ip, String[] args){
         ArrayList<String> temp = new ArrayList<>(2);
         temp.add(ip);
-        String monster = "";
+        String message = "";
         for(String param : args){
-            monster += param + " | ";
+            message += param + " | ";
         }
-        monster = monster.substring(0, monster.length()-3);
-        temp.add(monster);
+        message = message.substring(0, message.length()-3);
+        temp.add(message);
         try {
             toUpdate.put(temp);
         }
