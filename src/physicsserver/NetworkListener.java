@@ -56,7 +56,7 @@ public class NetworkListener {
    //         System.out.println("PARAM1: "+params[1]);
             switch(params[1]){
                 case("hostGame")://reqNumber | command | distance
-                    System.out.println("SERVER: login");
+                    System.out.println("SERVER: hostGame");
                     temp.add(reqNumber);
                     gameList.hostGame(createMachine(ipAddress, params[2]));
                     break;
@@ -65,14 +65,14 @@ public class NetworkListener {
                     boolean isIPHost = gameList.joinGame(params[2], createMachine(ipAddress, params[3]));
                     temp.set(1, temp.get(1) + Boolean.toString(isIPHost));
                     break;
-                case("leaveGame")://reqNumber | command | hostIp | distance
-                    System.out.println("SERVER: login");
+                case("leaveGame")://reqNumber | command | hostIp
+                    System.out.println("SERVER: leaveGame");
                     //if(ipIsHost(params[2], temp, reqNumber)) ;
-                    isIPHost = gameList.leaveGame(params[2], createMachine(ipAddress, params[3]));
+                    isIPHost = gameList.leaveGame(params[2], createMachine(ipAddress, "0"));
                     temp.set(1, temp.get(1) + Boolean.toString(isIPHost));
                     break;
                 case("changeDistance")://reqNumber | command | distance
-                    System.out.println("SERVER: login");
+                    System.out.println("SERVER: changeDistance");
                     gameList.changeDistance(createMachine(ipAddress, params[2]));
                     break;
             }

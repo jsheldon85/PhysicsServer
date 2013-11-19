@@ -10,6 +10,6 @@ public class Machine {
     }
     
     public boolean equals(Machine node){
-        return (node.ip == ip);
+        return (node.ip.equals(ip));
     }
 }

@@ -39,6 +39,11 @@ public class MachineList {
         }
     }
     
+    public void removeAll(){
+        for(int i=0; i<list.size(); i++) sendRemoveSet(i);
+        list.clear();
+    }
+    
     public void newDistance(Machine node){
         for(int i=0; i<list.size(); i++){
             if(list.get(i).equals(node)){
