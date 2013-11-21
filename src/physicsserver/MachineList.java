@@ -1,14 +1,9 @@
 package physicsserver;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MachineList {
     LinkedList<Machine> list;
-    static LinkedBlockingQueue<ArrayList<String>> toUpdate = new LinkedBlockingQueue();
     String hostIP;
     
     public MachineList(String hostIP){
@@ -82,7 +77,7 @@ public class MachineList {
                 newIP = adjacentNode.ip;
                 distance = getDifference(centerNode.distance, adjacentNode.distance);
             }
-            sendUpdateSide(toIP, distance, newIP);
+            OutputAdapter.sendUpdateSide(toIP, hostIP, distance, newIP);
         }
     }
     
@@ -101,32 +96,8 @@ public class MachineList {
     private double getDifference(double focusDist, double targetDist){
         return targetDist - focusDist;
     }
-    
-    private void sendUpdateSide(String ip, double relativeDistance, String newIp){
-        String[] args = {"updateSide", hostIP, Double.toString(relativeDistance), newIp};
-        sendUpdate(ip, args);
-    }
-    
+
     private void sendRemoveSet(int index){
-        String[] args = {"removeSet", hostIP};
-        sendUpdate(list.get(index).ip, args);
-    }
-    
-    //String ip, boolean isRightSide, double relativeDistance, String newIp
-    private void sendUpdate(String ip, String[] args){
-        ArrayList<String> temp = new ArrayList<>(2);
-        temp.add(ip);
-        String message = "";
-        for(String param : args){
-            message += param + " | ";
-        }
-        message = message.substring(0, message.length()-3);
-        temp.add(message);
-        try {
-            toUpdate.put(temp);
-        }
-        catch (InterruptedException ex) {
-            Logger.getLogger(MachineList.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        OutputAdapter.sendRemoveSet(list.get(index).ip, hostIP);
     }
 }

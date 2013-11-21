@@ -3,7 +3,7 @@ package physicsserver;
 import java.util.HashMap;
 
 public class GameList {
-    HashMap<String, MachineList> hostIPMachineListMap;
+    private HashMap<String, MachineList> hostIPMachineListMap;
     
     public void GameList(){
         
@@ -36,6 +36,10 @@ public class GameList {
         for(MachineList game : hostIPMachineListMap.values()){
             game.newDistance(node);
         }
+    }
+    
+    public void getGames(String ip){
+        OutputAdapter.sendUpdateGames(ip, (String[])hostIPMachineListMap.keySet().toArray());
     }
     
     private void endGame(String hostIP){

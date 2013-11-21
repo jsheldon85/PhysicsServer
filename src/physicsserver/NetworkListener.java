@@ -42,46 +42,29 @@ public class NetworkListener {
         }
     }
         
-    private void parse(String message,String ipAddress){//General Form: reqNum | command | param1 | param2 | ... | paramn
+    private void parse(String message,String ipAddress){//General Form: command | param1 | param2 | ... | paramn
         String[] params = message.split(" \\| ");
-    //    int i = 0;
-    //    for (String param : params){
-    //        System.out.println("param"+Integer.toString(i++)+"\t"+param);
-    //    }
-        try{
-            String reqNumber = params[0];
-            ArrayList<String> temp = new ArrayList<>(2);
-            temp.add(ipAddress);
-            temp.add(reqNumber+" | ");
-   //         System.out.println("PARAM1: "+params[1]);
-            switch(params[1]){
-                case("hostGame")://reqNumber | command | distance
-                    System.out.println("SERVER: hostGame");
-                    temp.add(reqNumber);
-                    gameList.hostGame(createMachine(ipAddress, params[2]));
-                    break;
-                case("joinGame")://reqNumber | command | hostIp | distance
-                    System.out.println("SERVER: joinGame");
-                    boolean isIPHost = gameList.joinGame(params[2], createMachine(ipAddress, params[3]));
-                    temp.set(1, temp.get(1) + Boolean.toString(isIPHost));
-                    break;
-                case("leaveGame")://reqNumber | command | hostIp
-                    System.out.println("SERVER: leaveGame");
-                    //if(ipIsHost(params[2], temp, reqNumber)) ;
-                    isIPHost = gameList.leaveGame(params[2], createMachine(ipAddress, "0"));
-                    temp.set(1, temp.get(1) + Boolean.toString(isIPHost));
-                    break;
-                case("changeDistance")://reqNumber | command | distance
-                    System.out.println("SERVER: changeDistance");
-                    gameList.changeDistance(createMachine(ipAddress, params[2]));
-                    break;
-            }
-            if (temp.size()==2) MachineList.toUpdate.put(temp);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(NetworkListener.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        catch(Error e){
-            System.out.println(e);
+        switch(params[0]){
+            case("hostGame")://command | distance
+                System.out.println("SERVER: hostGame");
+                gameList.hostGame(createMachine(ipAddress, params[1]));
+                break;
+            case("joinGame")://command | hostIp | distance
+                System.out.println("SERVER: joinGame");
+                gameList.joinGame(params[1], createMachine(ipAddress, params[2]));
+                break;
+            case("leaveGame")://command | hostIp
+                System.out.println("SERVER: leaveGame");
+                gameList.leaveGame(params[1], createMachine(ipAddress, "0"));
+                break;
+            case("changeDistance")://command | distance
+                System.out.println("SERVER: changeDistance");
+                gameList.changeDistance(createMachine(ipAddress, params[1]));
+                break;
+            case("getGames"):
+                System.out.println("updateJoinableGames");
+                gameList.getGames(ipAddress);
+                break;
         }
     }
     
