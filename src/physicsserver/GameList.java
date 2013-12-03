@@ -5,8 +5,8 @@ import java.util.HashMap;
 public class GameList {
     private HashMap<String, MachineList> hostIPMachineListMap;
     
-    public void GameList(){
-        
+    public GameList(){
+        hostIPMachineListMap = new HashMap<String, MachineList>();
     }
     public void hostGame(Machine node){
         if(!hostIPMachineListMap.containsKey(node.ip)){

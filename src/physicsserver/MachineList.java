@@ -48,6 +48,10 @@ public class MachineList {
         }        
     }
     
+    private void sendRemoveSet(int index){
+        OutputAdapter.sendRemoveSet(list.get(index).ip, hostIP);
+    }
+    
     private void updateSet(int index){
         updateLeftSide(index);
         updateRightSide(index);
@@ -95,9 +99,5 @@ public class MachineList {
     
     private double getDifference(double focusDist, double targetDist){
         return targetDist - focusDist;
-    }
-
-    private void sendRemoveSet(int index){
-        OutputAdapter.sendRemoveSet(list.get(index).ip, hostIP);
     }
 }
