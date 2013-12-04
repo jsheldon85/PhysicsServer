@@ -1,17 +1,14 @@
 package physicsserver;
 
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class OutputAdapter {
-    private static LinkedBlockingQueue<ArrayList<String>> toUpdate = new LinkedBlockingQueue();
-    
-    public static void startNetworkPusher(){
-        NetworkPusher pusher = new NetworkPusher(toUpdate);
-        pusher.start();
-    }
     
     public static void sendUpdateSide(String ip, String hostIP, double relativeDistance, String newIp){
         String[] args = {"updateSide", hostIP, Double.toString(relativeDistance), newIp};
@@ -33,21 +30,29 @@ public class OutputAdapter {
         sendUpdate(ip, args);
     }
     
-    //String ip, boolean isRightSide, double relativeDistance, String newIp
     private static void sendUpdate(String ip, String[] args){
-        ArrayList<String> temp = new ArrayList<>(2);
-        temp.add(ip);
         String message = "";
         for(String param : args){
             message += param + " | ";
         }
         message = message.substring(0, message.length()-3);
-        temp.add(message);
+        send(ip, message);
+    }
+    
+    private static void send(String ip, String message) {
         try {
-            toUpdate.put(temp);
-        }
-        catch (InterruptedException ex) {
-            Logger.getLogger(MachineList.class.getName()).log(Level.SEVERE, null, ex);
+            Socket s = new Socket(ip, 2002);
+            PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+
+            System.out.println("OUT:  "+message);
+            out.println(message);
+
+            out.close();
+            s.close();
+        } catch (UnknownHostException ex) {
+            Logger.getLogger(OutputAdapter.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(OutputAdapter.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 }
