@@ -73,7 +73,7 @@ public class MachineList {
     private void updateSide(int index, boolean isRightSide){
         if(isValidIndex(index)){
             Machine centerNode = list.get(index);
-            String toIP = centerNode.ip, newIP = "";
+            String toIP = centerNode.ip, newIP = "nullIP";
             double distance = isRightSide? 0.000001:-0.000001;
             
             if(isRightSide? hasAdjacentRight(index) : hasAdjacentLeft(index)){

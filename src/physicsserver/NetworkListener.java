@@ -43,23 +43,23 @@ public class NetworkListener {
         String[] params = message.split(" \\| ");
         switch(params[0]){
             case("hostGame")://command | distance
-                System.out.println("SERVER: hostGame");
+                System.out.println("parse: hostGame");
                 gameList.hostGame(createMachine(ipAddress, params[1]));
                 break;
             case("joinGame")://command | hostIp | distance
-                System.out.println("SERVER: joinGame");
+                System.out.println("parse: joinGame");
                 gameList.joinGame(params[1], createMachine(ipAddress, params[2]));
                 break;
             case("leaveGame")://command | hostIp
-                System.out.println("SERVER: leaveGame");
+                System.out.println("parse: leaveGame");
                 gameList.leaveGame(params[1], createMachine(ipAddress, "0"));
                 break;
             case("changeDistance")://command | distance
-                System.out.println("SERVER: changeDistance");
+                System.out.println("parse: changeDistance");
                 gameList.changeDistance(createMachine(ipAddress, params[1]));
                 break;
-            case("getGames"):
-                System.out.println("updateJoinableGames");
+            case("getHosts"):
+                System.out.println("parse: updateJoinableGames");
                 gameList.getGames(ipAddress);
                 break;
         }

@@ -6,12 +6,13 @@ public class GameList {
     private HashMap<String, MachineList> hostIPMachineListMap;
     
     public GameList(){
-        hostIPMachineListMap = new HashMap<String, MachineList>();
+        hostIPMachineListMap = new HashMap<>();
     }
     public void hostGame(Machine node){
         if(!hostIPMachineListMap.containsKey(node.ip)){
             MachineList game = new MachineList(node.ip);
             hostIPMachineListMap.put(node.ip, game);
+            joinGame(node.ip, node);
         }
     }
     
@@ -39,7 +40,16 @@ public class GameList {
     }
     
     public void getGames(String ip){
-        OutputAdapter.sendUpdateGames(ip, (String[])hostIPMachineListMap.keySet().toArray());
+        if(hostIPMachineListMap.size()==0){
+            OutputAdapter.sendUpdateGames(ip, new String[]{""});
+        }
+        String[] games = new String[hostIPMachineListMap.size()];
+        int i=0;
+        for(String game : hostIPMachineListMap.keySet()){
+            System.out.println("Game: "+game);
+            games[i++] = game;
+        }
+        OutputAdapter.sendUpdateGames(ip, games);
     }
     
     private void endGame(String hostIP){
